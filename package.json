@@ -4,8 +4,7 @@
   "description": "The nodejs SDK for aliyun mns service",
   "main": "index.js",
   "dependencies": {
-    "debug": "^2.6.8",
-    "gulp-helper": "^1.0.3",
+    "debug": "^2.6.8",    
     "promise": "^7.3.1",
     "request": "^2.65.0",
     "universal-analytics": "^0.4.13",
