@@ -1,4 +1,4 @@
-var gitVersion={"branch":"master","rev":"127","hash":"aa389a9","hash160":"aa389a9e64b480de04cb373dfdcc5d1f3f9d0fe4"};
+var gitVersion={"branch":"master","rev":"130","hash":"1cee888","hash160":"1cee88870431d023cf39847120255004d482f44c"};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -651,6 +651,7 @@ var AliMNS;
         function MQ(name, account, region) {
             this._notifyRecv = null;
             this._recvTolerance = 5; // 接收消息的容忍时间(单位:秒)
+            this._base64DecodeMode = 1;
             this._region = new AliMNS.Region(AliMNS.City.Hangzhou);
             this._pattern = "%s://%s.mns.%s.aliyuncs.com/queues/%s";
             this._name = name;
@@ -697,6 +698,9 @@ var AliMNS;
         // 接收消息容忍时间(秒)
         MQ.prototype.getRecvTolerance = function () { return this._recvTolerance; };
         MQ.prototype.setRecvTolerance = function (value) { this._recvTolerance = value; };
+        // 是否对MessageBody 进行 base64 decode
+        MQ.prototype.getBase64DecodeMode = function () { return this._base64DecodeMode; };
+        MQ.prototype.setBase64DecodeMode = function (value) { this._base64DecodeMode = value; };
         // 接收消息
         // waitSeconds, 最久等待多少秒0~30
         MQ.prototype.recvP = function (waitSeconds) {
@@ -714,7 +718,9 @@ var AliMNS;
                 _this._openStack.sendP("GET", url, null, null, options).done(function (data) {
                     debug(data);
                     if (data && data.Message && data.Message.MessageBody) {
-                        data.Message.MessageBody = _this.base64ToUtf8(data.Message.MessageBody);
+                        if (_this._base64DecodeMode) {
+                            data.Message.MessageBody = _this.base64ToUtf8(data.Message.MessageBody);
+                        }
                     }
                     resolve(data);
                 }, function (ex) {
@@ -1199,16 +1205,16 @@ var AliMNS;
         Subscription.prototype.makeAttrURL = function () {
             return Util.format(this._pattern, this._topic.getAccount().getHttps() ? "https" : "http", this._topic.getAccount().getAccountId(), this._topic.getRegion().toString(), this._topic.getName(), this._name);
         };
+        Subscription.NotifyStrategy = {
+            BACKOFF_RETRY: "BACKOFF_RETRY",
+            EXPONENTIAL_DECAY_RETRY: "EXPONENTIAL_DECAY_RETRY"
+        };
+        Subscription.NotifyContentFormat = {
+            XML: "XML",
+            SIMPLIFIED: "SIMPLIFIED"
+        };
         return Subscription;
     }());
-    Subscription.NotifyStrategy = {
-        BACKOFF_RETRY: "BACKOFF_RETRY",
-        EXPONENTIAL_DECAY_RETRY: "EXPONENTIAL_DECAY_RETRY"
-    };
-    Subscription.NotifyContentFormat = {
-        XML: "XML",
-        SIMPLIFIED: "SIMPLIFIED"
-    };
     AliMNS.Subscription = Subscription;
 })(AliMNS || (AliMNS = {}));
 

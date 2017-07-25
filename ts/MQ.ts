@@ -61,6 +61,10 @@ module AliMNS{
         public getRecvTolerance(){ return this._recvTolerance; }
         public setRecvTolerance(value:number){ this._recvTolerance = value; }
 
+        // 是否对MessageBody 进行 base64 decode
+        public getBase64DecodeMode(){ return this._base64DecodeMode; }
+        public setBase64DecodeMode(value:number){ this._base64DecodeMode = value; }
+        
         // 接收消息
         // waitSeconds, 最久等待多少秒0~30
         public recvP(waitSeconds?:number){
@@ -78,7 +82,9 @@ module AliMNS{
                 _this._openStack.sendP("GET", url, null, null, options).done(function(data){
                     debug(data);
                     if(data && data.Message && data.Message.MessageBody){
-                        data.Message.MessageBody = _this.base64ToUtf8(data.Message.MessageBody)
+                        if(_this._base64DecodeMode) {
+                            data.Message.MessageBody = _this.base64ToUtf8(data.Message.MessageBody)    
+                        }                        
                     }
                     resolve(data);
                 }, function(ex){
@@ -174,6 +180,7 @@ module AliMNS{
         protected _openStack: OpenStack;
         protected _notifyRecv: INotifyRecv = null;
         protected _recvTolerance = 5; // 接收消息的容忍时间(单位:秒)
+        protected _base64DecodeMode = 1;
 
         private _name: string;
         private _region = new Region(City.Hangzhou);
