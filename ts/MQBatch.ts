@@ -29,7 +29,9 @@ module AliMNS{
                 return this._openStack.sendP("POST", this._url, body);
             }
         }
-
+        // 是否对MessageBody 进行 base64 decode
+        public getBase64DecodeMode(){ return this._base64DecodeMode; }
+        public setBase64DecodeMode(value:number){ this._base64DecodeMode = value; }
         public recvP(waitSeconds?:number, numOfMessages?:number){
             if(numOfMessages === undefined) numOfMessages = 16;
             if(numOfMessages && numOfMessages > 1){
@@ -121,8 +123,8 @@ module AliMNS{
                     data.Messages.Message = [msg];
                 }
                 for(var i=0;i<data.Messages.Message.length;i++){
-                    var msg = data.Messages.Message[i];
-                    if(msg.MessageBody) msg.MessageBody = this.base64ToUtf8(msg.MessageBody);
+                    var msg = data.Messages.Message[i];                    
+                    if(msg.MessageBody) msg.MessageBody = this._base64DecodeMode ? this.base64ToUtf8(msg.MessageBody) : msg.MessageBody;
                 }
             }
             else{
@@ -131,5 +133,6 @@ module AliMNS{
         }
         
         protected _notifyRecv: INotifyRecvBatch = null;
+        protected _base64DecodeMode = 1;
     }
 }

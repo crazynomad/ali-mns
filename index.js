@@ -1,4 +1,4 @@
-var gitVersion={"branch":"master","rev":"130","hash":"1cee888","hash160":"1cee88870431d023cf39847120255004d482f44c"};
+var gitVersion={"branch":"master","rev":"132","hash":"1821f30","hash160":"1821f30a1d5f592b9953992b434e0f717a92e117"};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -816,6 +816,7 @@ var AliMNS;
         function MQBatch(name, account, region) {
             var _this = _super.call(this, name, account, region) || this;
             _this._notifyRecv = null;
+            _this._base64DecodeMode = 1;
             return _this;
         }
         MQBatch.prototype.sendP = function (msg, priority, delaySeconds) {
@@ -837,6 +838,9 @@ var AliMNS;
                 return this._openStack.sendP("POST", this._url, body);
             }
         };
+        // 是否对MessageBody 进行 base64 decode
+        MQBatch.prototype.getBase64DecodeMode = function () { return this._base64DecodeMode; };
+        MQBatch.prototype.setBase64DecodeMode = function (value) { this._base64DecodeMode = value; };
         MQBatch.prototype.recvP = function (waitSeconds, numOfMessages) {
             if (numOfMessages === undefined)
                 numOfMessages = 16;
@@ -927,7 +931,7 @@ var AliMNS;
                 for (var i = 0; i < data.Messages.Message.length; i++) {
                     var msg = data.Messages.Message[i];
                     if (msg.MessageBody)
-                        msg.MessageBody = this.base64ToUtf8(msg.MessageBody);
+                        msg.MessageBody = this._base64DecodeMode ? this.base64ToUtf8(msg.MessageBody) : msg.MessageBody;
                 }
             }
             else {
